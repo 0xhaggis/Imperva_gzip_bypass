@@ -30,6 +30,14 @@ You can script this tool and check the exit code in the caller:
 
 """
 
+knownWAFs = { 
+		"A potentially unsafe operation has been detected in your request to this site.": "WordFence",
+		"Request unsuccessful. Incapsula incident ID": "Imperva Incapsula",
+		"You don't have permission to access ": "Akamai",
+		"The server denied the specified Uniform Resource Locator": "ISA Server",
+		"The ISA Server denied the specified Uniform Resource Locator": "ISA Server"
+}
+
 import sys
 import requests
 from time import sleep
@@ -41,7 +49,7 @@ payloadBaseline = {'foo': 'bar'}
 payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
 payloadWindowsTrigger  = {'foo': 'bar', 'test': '../../../../../Windows/System32/cmd.exe'}
 
-# helper
+# helpers
 def make_request(url, data, headers={}):
 	try:
 		r = requests.post(url, data=data, timeout=5, verify=False, headers=headers)
@@ -50,6 +58,70 @@ def make_request(url, data, headers={}):
 		print('[!] Error connecting to %s' % url)
 
 	exit(2)
+
+def get_WAF_type(response):
+	if 'x-cnection' in response.headers:
+		return 'BigIP'
+
+	if 'x-binarysec-nocache' in response.headers:
+		return 'BinarySec'
+
+	if 'nncoection' in response.headers:
+		return 'NetScaler'
+
+	if 'cneonction' in response.headers:
+		return 'NetScaler'
+
+	if 'Server' in response.headers:
+		if response.headers['Server'] == 'BigIP':
+			return 'BigIP'
+
+		if 'WebKnight' in response.headers['Server']:
+			return 'WebKnight'
+
+		if 'BinarySEC' in response.headers['Server']:
+			return 'BinarySec'
+	
+		if response.headers['Server'] == 'F5-TrafficShield':
+			return 'F5 Traffic Shield'			
+
+		if 'Profense' in response.headers['Server']:
+			return 'Profense'
+
+
+	if 'Set-Cookie' in response.headers:
+		if 'barra_counter_session' in response.headers['Set-Cookie']:
+			return 'Barracuda'
+
+		if 'sessioncookie' in response.headers['Set-Cookie']:
+			return 'Denyall'
+
+		if 'AL_LB' in response.headers['Set-Cookie']:
+			return 'Airlock'
+
+		if 'AL_SESS' in response.headers['Set-Cookie']:
+			return 'Airlock'		
+
+		if 'ASINFO' in response.headers['Set-Cookie']:
+			return 'F5 Traffic Shield'
+
+		if 'st8id' in response.headers['Set-Cookie']:
+			return 'Teros / Citrix Application Firewall Enterprise'
+
+		if 'st8_wlf' in response.headers['Set-Cookie']:
+			return 'Teros / Citrix Application Firewall Enterprise'
+
+		if 'st8_wat' in response.headers['Set-Cookie']:
+			return 'Teros / Citrix Application Firewall Enterprise'
+
+		if 'PLBSID' in response.headers['Set-Cookie']:
+			return 'Profense'
+
+	for k in knownWAFs:
+		if k in response.text:
+			return knownWAFs[k]
+
+	return "unknown"
 
 
 # sanity check
@@ -78,7 +150,7 @@ try:
 except requests.exceptions.HTTPError:
 	# a failed request means it was blocked
 	impervaTriggered = impervaTriggered | 1
-	print("[+] WAF is blocking malicious UNIX payloads. This is good!");
+	print("[+] WAF (type: %s) is blocking malicious UNIX payloads. This is good!" % get_WAF_type(r));
 
 # Imperva-triggering request (Windows)
 try:
@@ -89,7 +161,7 @@ try:
 except requests.exceptions.HTTPError:
 	# a failed request means it was blocked
 	impervaTriggered = impervaTriggered | 2
-	print("[+] WAF is blocking malicious Windows payloads. This is good!");
+	print("[+] WAF (type: %s) is blocking malicious Windows payloads. This is good!" % get_WAF_type(r));
 
 
 # There's no point continuing if there isn't a WAF. 
