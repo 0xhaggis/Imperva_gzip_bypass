@@ -5,7 +5,7 @@ If so, attempt to evade WAF detection by adding a 'Content-Encoding: gzip' heade
 to HTTP POST requests.
 
 Syntax:
-	./imperva_gzip.py [-t] URL
+	./imperva_gzip.py [[-t] | [-r]] URL
 
 Guess the WAF type for a given URL:
 	$ ./imperva_gzip.py -t https://www.vulnerable.com/search
@@ -29,7 +29,10 @@ If you get this error:
 	[+] Can we make POST requests to https://www.vulnerable.com/search?
 	[!] Can't POST to https://www.vulnerable.com/search. Try -r if 30x redirects are allowed. HTTP response code: 302
 
-then try passing -r on the command line to enable relaxed mode.
+then try passing -r on the command line to enable relaxed mode. 
+By default relaxed mode is off, which means a POST request is 
+expected to elicit an HTTP 200 response. `-r` expands the acceptable 
+responses to HTTP 2xx, 3xx.
 
 You can script this tool and check the exit code in the caller:
 	0: Returned after getting WAF type.
