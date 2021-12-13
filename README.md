@@ -45,11 +45,12 @@ $ ./imperva_gzip.py https://www.vulnerable.com/search
 The exit codes for `imperva_gzip.py` are as follows:
 
 ```
-  0: Returned after getting WAF type.
-  1: Command-line was invalid.
-  2: There was an error connecting. Could be DNS error, timeout, etc.
-  3: No WAF was detected; malicious UNIX/Windows payloads weren't blocked.
-  4: A WAF was detected, but it wasn't Imperva.
+0: Returned after getting WAF type.
+1: Command-line was invalid.
+2: There was an error connecting. Could be DNS error, timeout, etc.
+3: No WAF was detected; malicious UNIX/Windows payloads weren't blocked.
+4: A WAF was detected, but it wasn't Imperva.
+5: The server responded to a test POST request with something other than HTTP 200.
 128: There is an Imperva WAF, but it is not vulnerable to the gzip bypass.
 129: The bypass was effective for the UNIX payload, but not the Windows one.
 130: The bypass was effective for the Windows payload, but not the UNIX one.
