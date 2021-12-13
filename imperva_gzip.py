@@ -129,10 +129,11 @@ class ImpervaBypass:
 					if 'st8_wat' 	   in r.headers['Set-Cookie']: 	self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
 					if 'PLBSID'  	   in r.headers['Set-Cookie']: 	self.WAFType = 'Profense'
 
-				for k in knownWAFs:
-					if k in r.text:
-						self.WAFType = knownWAFs[k]
-						break
+				if self.WAFType == '':
+					for k in knownWAFs:
+						if k in r.text:
+							self.WAFType = knownWAFs[k]
+							break
 
 				if self.WAFType != '':
 					break
