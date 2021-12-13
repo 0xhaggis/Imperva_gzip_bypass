@@ -185,6 +185,10 @@ if not impervaTriggered:
 	print('[!] It looks like there is no WAF protecting %s.' % sys.argv[1])
 	exit(3)
 
+waf = get_WAF_type(r)
+if waf != 'Imperva Incapsula':
+	print('[!] The WAF is not Incapsula. Found: %s' % waf)
+	exit(5)
 
 # Bypass requests
 sleep(.5)
