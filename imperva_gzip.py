@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """
-This will scan an HTTP endpoint and determine if it's protected by a WAF.
-If so, attempt to evade Imperva WAF by adding a 'Content-Encoding: gzip' header
+This will scan an HTTP endpoint and determine if it's protected by Imperva WAF.
+If so, attempt to evade WAF detection by adding a 'Content-Encoding: gzip' header
 to HTTP POST requests.
 
 Syntax:
 	./imperva_gzip.py URL
+
 e.g.:
-	./imperva_gzip.py https://vulnerable.com/search.aspx
-	[+] Sending baseline POST request to https://vulnerable.com/search.aspx
+	./imperva_gzip.py https://www.vulnerable.com/search
+	[+] Sending baseline POST request to https://www.vulnerable.com/search
+	[+] Response: HTTP 200
 	[+] Sending malicious UNIX payload to trigger the WAF...
-	[+] WAF (type: Imperva Incapsula) is blocking malicious UNIX payloads. This is good!
+	[+] WAF (type: Imperva Incapsula) is blocking malicious UNIX payloads with HTTP 403. This is good!
 	[+] Sending malicious Windows payload to trigger the WAF...
-	[+] WAF (type: Imperva Incapsula) is blocking malicious Windows payloads. This is good!
+	[+] WAF (type: Imperva Incapsula) is blocking malicious Windows payloads with HTTP 403. This is good!
 	[+] Attempting gzip bypass for UNIX trigger...
-	[+] Vulnerable!
+	[+] Vulnerable! HTTP 200
 	[+] Attempting gzip bypass for Windows trigger...
-	[+] Vulnerable!
+	[+] Vulnerable! HTTP 200
 
 You can script this tool and check the exit code in the caller:
 	1: No URL specified on command-line.
