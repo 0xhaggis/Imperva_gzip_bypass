@@ -14,32 +14,42 @@ Add a new header like this:
 
 That's it, you're good to go.
 
-# To test if a host is vulnerable
+# Running the test script
 Run `imperva_gzip.py` against a URL that supports POST requests like this:
 
+Syntax:
+	`./imperva_gzip.py [-t] URL`
+
+Guess the WAF type for a given URL:
 ```
-./imperva_gzip.py https://www.vulnerable.com/search
-[+] Sending baseline POST request to https://www.vulnerable.com/search
-[+] Response: HTTP 200
-[+] Sending malicious UNIX payload to trigger the WAF...
-[+] WAF (type: Imperva Incapsula) is blocking malicious UNIX payloads with HTTP 403. This is good!
-[+] Sending malicious Windows payload to trigger the WAF...
-[+] WAF (type: Imperva Incapsula) is blocking malicious Windows payloads with HTTP 403. This is good!
+$ ./imperva_gzip.py -t https://www.vulnerable.com/search
+Imperva Incapsula
+$ ./imperva_gzip.py -t https://www.wordpress-user.com/login
+WordFence
+$ ./imperva_gzip.py -t https://www.cloudflare-customer.com
+Cloudflare
+```
+
+Check to see if the WAF is vulnerable to the gzip bypass:
+```
+$ ./imperva_gzip.py https://www.vulnerable.com/search
+[+] Can we make POST requests to https://www.vulnerable.com/search?
+[+] Checking for Imperva WAF...
 [+] Attempting gzip bypass for UNIX trigger...
-[+] Vulnerable! HTTP 200
+[+] Vulnerable! HTTP response code: 200
 [+] Attempting gzip bypass for Windows trigger...
-[+] Vulnerable! HTTP 200
+[+] Vulnerable! HTTP response code: 200
 ```
 
 ## Scripting
 The exit codes for `imperva_gzip.py` are as follows:
 
 ```
-  1: No URL specified on command-line.
+  0: Returned after getting WAF type.
+  1: Command-line was invalid.
   2: There was an error connecting. Could be DNS error, timeout, etc.
   3: No WAF was detected; malicious UNIX/Windows payloads weren't blocked.
-  4: The baseline POST request didn't return HTTP 200.
-  5: There is a WAF, but it is not Imperva.
+  4: A WAF was detected, but it wasn't Imperva.
 128: There is an Imperva WAF, but it is not vulnerable to the gzip bypass.
 129: The bypass was effective for the UNIX payload, but not the Windows one.
 130: The bypass was effective for the Windows payload, but not the UNIX one.
