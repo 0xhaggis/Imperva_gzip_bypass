@@ -63,7 +63,6 @@ knownWAFs = {
 
 import sys
 import requests
-from time import sleep
 
 # By default HTTP POST requests must elicit an HTTP 200 response.
 # Pass -r on the command line to enable relaxed mode, where
@@ -196,10 +195,7 @@ if imp.get_WAF_type() == 'None':
 elif imp.get_WAF_type() != 'Imperva Incapsula':
 	print("[!] Imperva wasn't detected. WAF type: %s" % imp.get_WAF_type())
 	exit(4)
-
-# Imperva will stall for a few seconds if we make a request
-# immediately after calling get_WAF_type.
-sleep(0.5)
+print('[+] Found Imperva WAF!')
 
 # Run the two bypass attempts. 
 # First with a UNIX WAF trigger.
