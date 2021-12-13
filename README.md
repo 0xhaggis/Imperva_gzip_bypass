@@ -18,7 +18,7 @@ That's it, you're good to go.
 Run `imperva_gzip.py` against a URL that supports POST requests like this:
 
 Syntax:
-	`./imperva_gzip.py [-t] URL`
+	`./imperva_gzip.py [[-t] | [-r]] URL`
 
 Guess the WAF type for a given URL:
 ```
@@ -40,6 +40,15 @@ $ ./imperva_gzip.py https://www.vulnerable.com/search
 [+] Attempting gzip bypass for Windows trigger...
 [+] Vulnerable! HTTP response code: 200
 ```
+
+If you get this error:
+```
+$ ./imperva_gzip.py https://www.vulnerable.com/search
+[+] Can we make POST requests to https://www.vulnerable.com/search?
+[!] Can't POST to https://www.vulnerable.com/search. Try -r if 30x redirects are allowed. HTTP response code: 302
+```
+
+then try passing `-r` on the command line to enable relaxed mode. By default relaxed mode is off, which means a POST request is expected to elicit an HTTP 200 response from the server. `-r` expands the acceptable responses to HTTP 2xx, 3xx.
 
 ## Scripting
 The exit codes for `imperva_gzip.py` are as follows:
