@@ -131,12 +131,12 @@ class ImpervaBypass:
         if self.WAFType != '':
             return self.WAFType
 
-        i = 1
+        i = len(payloadTriggers)
         for p in payloadTriggers:
             r = self.make_request(self.URL, payloadTriggers[p])
             try:
                 r.raise_for_status()
-                if i == len(payloadTriggers):
+                if i == 1:
                     self.WAFType = 'None'
             except:
                 for WAFHeader in knownWAFs['headers']:
@@ -152,7 +152,7 @@ class ImpervaBypass:
                         self.WAFType = knownWAFs['body'][WAFBody]
                         return self.WAFType
 
-            i = i + 1
+            i = i - 1
 
         if self.WAFType == '':
             self.WAFType = 'Unknown'
