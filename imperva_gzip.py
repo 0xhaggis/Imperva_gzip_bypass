@@ -60,8 +60,8 @@ relaxedMode = False
 
 payloadBaseline = {'foo':'bar'}
 payloadTriggers = { 
-    'Windows': {'foo': 'bar', 'test': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'},
-    'UNIX'   : {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
+    'Windows': {'foo': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'},
+    'UNIX'   : {'foo': '../../../../../../../etc/shadow'}
 }
 
 knownWAFs = { 
