@@ -4,6 +4,9 @@ This will scan an HTTP endpoint and determine if it's protected by Imperva WAF.
 If so, attempt to evade WAF detection by adding a 'Content-Encoding: gzip' header
 to HTTP POST requests.
 
+The WAF detection code is based on nmap's NSE for WAF fingerprinting: 
+	https://svn.nmap.org/nmap/scripts/http-waf-fingerprint.nse
+
 Syntax:
 	./imperva_gzip.py [[-t] | [-r]] URL
 
@@ -68,7 +71,7 @@ import requests
 # Pass -r on the command line to enable relaxed mode, where
 # HTTP 2xx and 3xx are acceptable responses to a POST request.
 relaxedMode = False
- 
+
 payloadBaseline = {'foo': 'bar'}
 payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
 payloadWindowsTrigger  = {'foo': 'bar', 'test': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'}
