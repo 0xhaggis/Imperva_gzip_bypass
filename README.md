@@ -18,16 +18,17 @@ That's it, you're good to go.
 Run `imperva_gzip.py` against a URL that supports POST requests like this:
 
 ```
-./imperva_gzip.py https://vulnerable.com/search
-[+] Sending baseline POST request to https://vulnerable.com/search
+./imperva_gzip.py https://www.vulnerable.com/search
+[+] Sending baseline POST request to https://www.vulnerable.com/search
+[+] Response: HTTP 200
 [+] Sending malicious UNIX payload to trigger the WAF...
-[+] WAF is blocking malicious UNIX payloads. This is good!
+[+] WAF (type: Imperva Incapsula) is blocking malicious UNIX payloads with HTTP 403. This is good!
 [+] Sending malicious Windows payload to trigger the WAF...
-[+] WAF is blocking malicious Windows payloads. This is good!
+[+] WAF (type: Imperva Incapsula) is blocking malicious Windows payloads with HTTP 403. This is good!
 [+] Attempting gzip bypass for UNIX trigger...
-[+] Vulnerable!
+[+] Vulnerable! HTTP 200
 [+] Attempting gzip bypass for Windows trigger...
-[+] Vulnerable!
+[+] Vulnerable! HTTP 200
 ```
 
 ## Scripting
@@ -38,7 +39,8 @@ The exit codes for `imperva_gzip.py` are as follows:
   2: There was an error connecting. Could be DNS error, timeout, etc.
   3: No WAF was detected; malicious UNIX/Windows payloads weren't blocked.
   4: The baseline POST request didn't return HTTP 200.
-128: There is a WAF, but it is not vulnerable to the gzip bypass.
+  5: There is a WAF, but it is not Imperva.
+128: There is an Imperva WAF, but it is not vulnerable to the gzip bypass.
 129: The bypass was effective for the UNIX payload, but not the Windows one.
 130: The bypass was effective for the Windows payload, but not the UNIX one.
 131: The bypass was effective against both Windows and UNIX payloads.
