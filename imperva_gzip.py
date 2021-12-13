@@ -67,10 +67,11 @@ import requests
 # By default HTTP POST requests must elicit an HTTP 200 response.
 # Pass -r on the command line to enable relaxed mode, where
 # HTTP 2xx and 3xx are acceptable responses to a POST request.
-relaxedMode = False 
+relaxedMode = False
+ 
 payloadBaseline = {'foo': 'bar'}
 payloadUnixTrigger  = {'foo': 'bar', 'test': '../../../../../../../etc/shadow'}
-payloadWindowsTrigger  = {'foo': 'bar', 'test': '../../../../../Windows/System32/cmd.exe'}
+payloadWindowsTrigger  = {'foo': 'bar', 'test': '..\\..\\..\\..\\..\\Windows\\System32\\cmd.exe'}
 
 class ImpervaBypass:
 	def __init__(self, URL):
