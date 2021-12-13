@@ -81,4 +81,4 @@ According to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-E
 * `gzip`
 * `br`
 
-In testing, only `gzip` appears to work as a bypass. I wonder if gzip is whitelisted for performance reasons, maybe by default? I'll do more research and update this page soon.
+In testing, only `gzip` appears to work as a bypass. I wonder if gzip is whitelisted for performance reasons?
