@@ -1,7 +1,7 @@
 # Imperva Web Application Firewall (WAF) POST Request Bypass 
 Imperva-protected HTTP(S) servers are vulnerable to a trivial bypass that allows malicious POST payloads, such as unobfuscated SQL injection, to evade detection. 
 
-## To Exploit it
+## To Exploit It
 Add the header `Content-Encoding: gzip` to your POST requests. Leave your POST data as-is. Don't encode it! That's it; you can put literally anything for the content encoding so long as the first four characters are `gzip`. Imperva just passes it through.
 
 You can do this in Burp by using the proxy's Match & Replace feature:
@@ -90,7 +90,7 @@ I don't know. Version information isn't obvious with Imperva's WAF. What we do k
 
 This sounds like exactly the same bug! The issue was resolved for SecureSphere in February 2021, but we don't know when it was introduced. It's possible that the vulnerability has been there for years. Moreover, the same bug in two products from the same company implies a common codebase between WAF and SecureSphere. It's likely that there are other common security bugs in the two products. 
 
-## Config issue or legit bug?
+## Config Issue or Legit Bug?
 I did some research to see if there are any gzip configuration options in Imperva WAFs, but I couldn't find anything (as of this post). Add to that the commonality of the bug between products and my best guess is that this is a bug, not a feature or a configuration issue.
 
 ## Mitigating
