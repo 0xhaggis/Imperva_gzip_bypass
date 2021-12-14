@@ -95,3 +95,8 @@ I did some research to see if there are any gzip configuration options in Imperv
 
 ## Mitigating
 Put a WAF on your WAF?
+
+## Contact
+* Author: [@carllivitt](https://twitter.com/carllivitt)
+* Bishop Fox: [@bishopfox](https://twitter.com/bishopfox)
+* Continuous Offensive Security: [Cosmos](https://bishopfox.com/platform)
