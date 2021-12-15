@@ -64,6 +64,7 @@ Sec-Fetch-Dest: empty
 Sec-Fetch-Mode: cors
 Sec-Fetch-Site: same-origin
 Te: trailers
+Content-Encoding: gzip
 
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE foo 
