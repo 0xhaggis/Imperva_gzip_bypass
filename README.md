@@ -1,9 +1,8 @@
 # Imperva Web Application Firewall (WAF) POST Request Bypass 
-Imperva Cloud WAF __OTHER_AFFECTED_PRODUCTS__ is vulnerable to a bypass that allows attackers to evade WAF rules when sending malicious HTTP POST payloads, such as log4j exploits, SQL injection, command execution, directory traversal, XXE, etc.
+Imperva Cloud WAF was vulnerable to a bypass that allows attackers to evade WAF rules when sending malicious HTTP POST payloads, such as log4j exploits, SQL injection, command execution, directory traversal, XXE, etc.
 
 ## Remediation
-All customers of Cloud WAF are automatically patched as of __INSERT_PATCH_DATE__.
-* Talk about __OTHER_AFFECTED_PRODUCTS__ before going live.
+The Imperva team took this very seriously from the minute it was reported to them, and they turned around a global fix in just a few days. Kudos. All customers of Cloud WAF are automatically patched as of December 22, 2021. Imperva were great to work with and clearly have a mature, skilled, and capable security team.
 
 ## To Exploit It
 Add the header `Content-Encoding: gzip` to HTTP POST requests. Leave POST data as-is. Don't encode it. So long as the first four bytes of the `Content-Encoding` header are `gzip`, no WAF rules will be applied to POST requests.
@@ -89,9 +88,7 @@ In testing, only `gzip` worked as a bypass.
 
 ## Affected Versions
 ### Imperva Cloud WAF
-Cloud WAF is managed by Imperva. As as result, updates to Cloud WAF affect almost all customers at almost the same time. It is patched for all customers as of __INSERT_PATCH_DATE__. 
-
-### __OTHER_AFFECTED_PRODUCTS__
+Cloud WAF is managed by Imperva. As as result, updates to Cloud WAF affect almost all customers at almost the same time. It is patched for all customers as of December 22, 2021.
 
 ## SecureSphere
 The `gzip` bypass bug has been remediated in a separate Imperva product called SecureSphere. The [release notes for v12.6 of SecureSphere](https://docs.imperva.com/bundle/v12.6-release-notes/page/64973.htm) contain this paragraph:
@@ -108,8 +105,7 @@ I'm pretty sure this is the same bug, perhaps with the same code heritage as Clo
 * Mad Scientists: [Bishop Fox Labs](https://bishopfox.com/labs)
 
 ### Imperva
-__CONTACT_DETAILS__
-url, email, phone, social, etc
+Imperva Customer Support: https://www.imperva.com/support/technical-support/
 
 ## References
 * [Imperva Cloud WAF](https://www.imperva.com/products/web-application-firewall-waf/)
