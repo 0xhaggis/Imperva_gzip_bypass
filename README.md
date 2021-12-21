@@ -102,9 +102,10 @@ I'm pretty sure this is the same bug, perhaps with the same code heritage as Clo
 
 ## Contact
 ### Bishop Fox
-* Author: [@carllivitt](https://twitter.com/carllivitt)
-* Bishop Fox: [@bishopfox](https://twitter.com/bishopfox)
-* Continuous Offensive Security: [Cosmos](https://bishopfox.com/platform)
+* Author: [@carllivitt](https://twitter.com/carllivitt) [@bishopfox](https://twitter.com/bishopfox)
+* Offensive Security: [Bishop Fox](https://bishopfox.com/)
+* Continuous Offensive Security: [Bishop Fox Cosmos](https://bishopfox.com/platform)
+* Mad Scientists: [Bishop Fox Labs](https://bishopfox.com/labs)
 
 ### Imperva
 __CONTACT_DETAILS__
