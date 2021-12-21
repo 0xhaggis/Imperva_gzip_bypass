@@ -1,8 +1,8 @@
 # Imperva Web Application Firewall (WAF) POST Request Bypass 
-Imperva-protected HTTP(S) servers are vulnerable to a trivial bypass that allows malicious POST payloads, such as unobfuscated SQL injection, to evade detection. 
+Imperva Cloud WAF __OTHER_AFFECTED_PRODUCTS__ is vulnerable to a bypass that allows attackers to evade WAF rules when sending malicious HTTP POST payloads, such as log4j exploits, SQL injection, command execution, directory traversal, XXE, etc.
 
 ## To Exploit It
-Add the header `Content-Encoding: gzip` to your POST requests. Leave your POST data as-is. Don't encode it! That's it; you can put literally anything for the content encoding so long as the first four characters are `gzip`. Imperva just passes it through.
+Add the header `Content-Encoding: gzip` to HTTP POST requests. Leave POST data as-is. Don't encode it. So long as the first four bytes of the `Content-Encoding` header are `gzip`, no WAF rules will be applied to POST requests.
 
 You can do this in Burp by using the proxy's Match & Replace feature:
 
@@ -84,19 +84,28 @@ According to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-E
 In testing, only `gzip` appears to work as a bypass. I wonder if gzip is whitelisted for performance reasons?
 
 ## Affected Versions
-I don't know. Version information isn't obvious with Imperva's WAF. What we do know is that this bug has previously been identified in a separate Imperva product called SecureSphere. The [release notes for v12.6 of SecureSphere](https://docs.imperva.com/bundle/v12.6-release-notes/page/64973.htm) contain this paragraph:
+### Imperva Cloud WAF
+Cloud WAF is managed by Imperva. As as result, updates to Cloud WAF affect almost all customers at almost the same time. It is patched for all customers as of __INSERT_PATCH_DATE__. 
+
+### __OTHER_AFFECTED_PRODUCTS__
+
+## SecureSphere
+The `gzip` bypass bug has been remediated in a separate Imperva product called SecureSphere. The [release notes for v12.6 of SecureSphere](https://docs.imperva.com/bundle/v12.6-release-notes/page/64973.htm) contain this paragraph:
 
 > SPHR-58185: When SecureSphere failed to decompress POST body in requests with "Content-Encoding: gzip/deflate" header, it issued no alert and let the request through.
 
-This sounds like exactly the same bug! The issue was resolved for SecureSphere in February 2021, but we don't know when it was introduced. It's possible that the vulnerability has been there for years. Moreover, the same bug in two products from the same company implies a common codebase between WAF and SecureSphere. It's likely that there are other common security bugs in the two products. 
+I'm pretty sure this is the same bug, perhaps with the same code heritage as Cloud WAF... it's a pretty specific bug to be in two products. The issue was resolved for SecureSphere in February 2021, but we don't know when it was introduced. It's possible that the vulnerability has been there for years!
 
-## Config Issue or Legit Bug?
-I did some research to see if there are any gzip configuration options in Imperva WAFs, but I couldn't find anything (as of this post). Add to that the commonality of the bug between products and my best guess is that this is a bug, not a feature or a configuration issue.
-
-## Mitigating
-Put a WAF on your WAF?
+## Remediation
+All customers of Cloud WAF should be patched automatically as of __INSERT_PATCH_DATE__.
+* Talk about __OTHER_AFFECTED_PRODUCTS__ before going live.
 
 ## Contact
+### Bishop Fox
 * Author: [@carllivitt](https://twitter.com/carllivitt)
 * Bishop Fox: [@bishopfox](https://twitter.com/bishopfox)
 * Continuous Offensive Security: [Cosmos](https://bishopfox.com/platform)
+
+### Imperva
+__CONTACT_DETAILS__
+url, email, phone, social, etc
