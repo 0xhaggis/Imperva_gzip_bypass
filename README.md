@@ -85,7 +85,7 @@ According to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-E
 * `gzip`
 * `br`
 
-In testing, only `gzip` appears to work as a bypass. I wonder if gzip is whitelisted for performance reasons?
+In testing, only `gzip` worked as a bypass.
 
 ## Affected Versions
 ### Imperva Cloud WAF
