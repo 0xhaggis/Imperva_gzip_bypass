@@ -1,6 +1,10 @@
 # Imperva Web Application Firewall (WAF) POST Request Bypass 
 Imperva Cloud WAF __OTHER_AFFECTED_PRODUCTS__ is vulnerable to a bypass that allows attackers to evade WAF rules when sending malicious HTTP POST payloads, such as log4j exploits, SQL injection, command execution, directory traversal, XXE, etc.
 
+## Remediation
+All customers of Cloud WAF are automatically patched as of __INSERT_PATCH_DATE__.
+* Talk about __OTHER_AFFECTED_PRODUCTS__ before going live.
+
 ## To Exploit It
 Add the header `Content-Encoding: gzip` to HTTP POST requests. Leave POST data as-is. Don't encode it. So long as the first four bytes of the `Content-Encoding` header are `gzip`, no WAF rules will be applied to POST requests.
 
@@ -96,10 +100,6 @@ The `gzip` bypass bug has been remediated in a separate Imperva product called S
 
 I'm pretty sure this is the same bug, perhaps with the same code heritage as Cloud WAF... it's a pretty specific bug to be in two products. The issue was resolved for SecureSphere in February 2021, but we don't know when it was introduced. It's possible that the vulnerability has been there for years!
 
-## Remediation
-All customers of Cloud WAF should be patched automatically as of __INSERT_PATCH_DATE__.
-* Talk about __OTHER_AFFECTED_PRODUCTS__ before going live.
-
 ## Contact
 ### Bishop Fox
 * Author: [@carllivitt](https://twitter.com/carllivitt)
@@ -109,3 +109,8 @@ All customers of Cloud WAF should be patched automatically as of __INSERT_PATCH_
 ### Imperva
 __CONTACT_DETAILS__
 url, email, phone, social, etc
+
+## References
+* [Imperva Cloud WAF](https://www.imperva.com/products/web-application-firewall-waf/)
+* [Imperva SecureSphere 12.6 release notes](https://docs.imperva.com/bundle/v12.6-release-notes/page/64973.htm)
+* [Content-Encoding HTTP header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding)
